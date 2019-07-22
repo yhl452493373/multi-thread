@@ -58,9 +58,14 @@ public class MultiThread<ReturnType> {
      */
     public void run(MultiTask<ReturnType> task) {
         executor.execute(() -> {
-            //使results集合线程安全，避免出现线程结果未放到集合就执行done里面的calculate.run方法的情况
-            synchronized (results) {
-                results.add(task.run());
+            try {
+                ReturnType engineResult = task.run();
+                //使results集合线程安全，避免出现线程结果未放到集合就执行done里面的calculate.run方法的情况
+                synchronized (results) {
+                    results.add(engineResult);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         });
     }
